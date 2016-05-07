@@ -101,3 +101,9 @@ MANIFEST-*
 *.opensdf
 *.pdb
 *.props
+packages
+*.db
+*.opendb
+x64
+bin
+obj
