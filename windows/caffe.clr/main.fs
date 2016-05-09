@@ -1,5 +1,6 @@
 ﻿module MainEntry
 
+open Caffe.Clr
 open Caffe.Clr.Interop
 
 let main() =

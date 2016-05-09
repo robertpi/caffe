@@ -8,15 +8,16 @@ type Layer internal (layerAnon: IntPtr) =
     member private x.GetIntPtr() =
         layerAnon
 
-    member x.ShareInParallel() =
-        LayerFunctions.caffe_layer_ShareInParallel(layerAnon)
+    member x.ShareInParallel
+        with get() =
+            LayerFunctions.caffe_layer_ShareInParallel(layerAnon)
 
 
-    member x.IsShared() =
-        LayerFunctions.caffe_layer_IsShared(layerAnon)
-
-    member x.SetShared(is_shared: bool) =
-        LayerFunctions.caffe_layer_SetShared(layerAnon, is_shared)
+    member x.IsShared
+        with get() =
+            LayerFunctions.caffe_layer_IsShared(layerAnon)
+        and set value =
+            LayerFunctions.caffe_layer_SetShared(layerAnon, value)
 
     member x.Reshape(bottom: Blob[], top: Blob[]) =
         let bottomPtrs = bottom |> Array.map (fun x -> x.GetIntPtr())
@@ -48,7 +49,7 @@ type Layer internal (layerAnon: IntPtr) =
         propHdl.Free()
         bottomHdl.Free()
 
-    member x.blob(i: int) =
+    member x.Blob(i: int) =
         let blobPtr = LayerFunctions.caffe_layer_blob(layerAnon, i) 
         new Blob(blobPtr)
 
@@ -59,36 +60,45 @@ type Layer internal (layerAnon: IntPtr) =
         LayerFunctions.caffe_layer_set_loss(layerAnon, top_index, value)
 
 
-    member x.Type() =
-        LayerFunctions.caffe_layer_type(layerAnon)
+    member x.Type
+        with get() =
+            LayerFunctions.caffe_layer_type(layerAnon)
 
 
-    member x.ExactNumBottomBlobs() =
-        LayerFunctions.caffe_layer_ExactNumBottomBlobs(layerAnon)
+    member x.ExactNumBottomBlobs
+        with get() =
+            LayerFunctions.caffe_layer_ExactNumBottomBlobs(layerAnon)
 
-    member x.MinBottomBlobs() =
-        LayerFunctions.caffe_layer_MinBottomBlobs(layerAnon)
-
-
-    member x.MaxBottomBlobs() =
-        LayerFunctions.caffe_layer_MaxBottomBlobs(layerAnon)
-
-    member x.ExactNumTopBlobs() =
-        LayerFunctions.caffe_layer_ExactNumTopBlobs(layerAnon)
-
-    member x.MinTopBlobs() =
-        LayerFunctions.caffe_layer_MinTopBlobs(layerAnon)
-
-    member x.MaxTopBlobs() =
-        LayerFunctions.caffe_layer_MaxTopBlobs (layerAnon)
+    member x.MinBottomBlobs
+        with get() =
+            LayerFunctions.caffe_layer_MinBottomBlobs(layerAnon)
 
 
-    member x.EqualNumBottomTopBlobs() =
-        LayerFunctions.caffe_layer_EqualNumBottomTopBlobs(layerAnon)
+    member x.MaxBottomBlobs
+        with get() =
+            LayerFunctions.caffe_layer_MaxBottomBlobs(layerAnon)
+
+    member x.ExactNumTopBlobs
+        with get() =
+            LayerFunctions.caffe_layer_ExactNumTopBlobs(layerAnon)
+
+    member x.MinTopBlobs
+        with get() =
+            LayerFunctions.caffe_layer_MinTopBlobs(layerAnon)
+
+    member x.MaxTopBlobs
+        with get() =
+            LayerFunctions.caffe_layer_MaxTopBlobs (layerAnon)
 
 
-    member x.AutoTopBlobs() =
-        LayerFunctions.caffe_layer_AutoTopBlobs(layerAnon)
+    member x.EqualNumBottomTopBlobs
+        with get() =
+            LayerFunctions.caffe_layer_EqualNumBottomTopBlobs(layerAnon)
+
+
+    member x.AutoTopBlobs
+        with get() =
+            LayerFunctions.caffe_layer_AutoTopBlobs(layerAnon)
 
 
     member x.AllowForceBackward(bottom_index: int) =

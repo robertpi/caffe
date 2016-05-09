@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Common.fs" />
     <Compile Include="InteropCommon.fs" />
     <Compile Include="InteropBlob.fs" />
     <Compile Include="InteropLayer.fs" />

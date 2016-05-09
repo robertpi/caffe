@@ -23,82 +23,111 @@ type Blob internal (blobAnon: IntPtr) =
         let otherPtr = other.GetIntPtr()
         BlobFunctions.caffe_blob_ReshapeLike(blobAnon, otherPtr)
 
-    member x.shape(index: int) =
+    member x.Shape(index: int) =
         BlobFunctions.caffe_blob_shape(blobAnon, index)
 
-    member x.num_axes() =
+    member x.NumberOfAxes() =
         BlobFunctions.caffe_blob_num_axes(blobAnon)
 
-    member x.count() =
-        BlobFunctions.caffe_blob_count(blobAnon) 
+    member x.Count
+        with get() =
+            BlobFunctions.caffe_blob_count(blobAnon) 
 
-    member x.count_start_end(start_axis: int, end_axis: int) =
+    member x.CountStartEnd(start_axis: int, end_axis: int) =
         BlobFunctions.caffe_blob_count_start_end(blobAnon, start_axis, end_axis)
 
-    member x.count_start(start_axis: int) =
+    member x.countStart(start_axis: int) =
         BlobFunctions.caffe_blob_count_start(blobAnon, start_axis)
 
     member x.CanonicalAxisIndex(axis_index: int) =
         BlobFunctions.caffe_blob_CanonicalAxisIndex(blobAnon, axis_index)
 
-    member x.offset(n: int, c: int, h: int, w: int) =
+    member x.Offset(n: int, c: int, h: int, w: int) =
         BlobFunctions.caffe_blob_offset(blobAnon, n, c, h, w)
 
-    member x.offset(indices: int[]) =
+    member x.Offset(indices: int[]) =
         let indicesHdl = GCHandle.Alloc(indices)
         let offset = BlobFunctions.caffe_blob_offset_vector(blobAnon, indicesHdl.AddrOfPinnedObject(), indices.Length)
         indicesHdl.Free()
         offset
 
-    member x.data_at(n: int, c: int, h: int, w: int) =
+    member x.DataAt(n: int, c: int, h: int, w: int) =
         BlobFunctions.caffe_blob_data_at(blobAnon, n, c, h, w)
 
-    member x.data_at(index: int[]) =
+    member x.DataAt(index: int[]) =
         let indexHdl = GCHandle.Alloc(index)
         let data = BlobFunctions.caffe_blob_data_at_vector(blobAnon, indexHdl.AddrOfPinnedObject(), index.Length)
         indexHdl.Free()
         data
 
-    member x.diff_at(n: int, c: int, h: int, w: int) =
+    member x.DiffAt(n: int, c: int, h: int, w: int) =
         BlobFunctions.caffe_blob_diff_at(blobAnon, n, c, h, w)
 
-    member x.diff_at(index: int[]) =
+    member x.DiffAt(index: int[]) =
         let indexHdl = GCHandle.Alloc(index)
         let data = BlobFunctions.caffe_blob_diff_at_vector(blobAnon, indexHdl.AddrOfPinnedObject(), index.Length)
         indexHdl.Free()
         data
 
-    member x.cpu_data() =
-        BlobFunctions.caffe_blob_cpu_data(blobAnon)
+    member x.Data
+        with get() = 
+            let ptr = BlobFunctions.caffe_blob_cpu_data(blobAnon)
+            let result: float32[] = Array.zeroCreate (x.Count)
+            Marshal.Copy(ptr, result, 0, result.Length)
+            result
+        and  set (value: float32[]) =
+            let ptr = BlobFunctions.caffe_blob_mutable_cpu_data(blobAnon)
+            Marshal.Copy(value, 0, ptr, x.Count)
 
-    member x.set_cpu_data(data: float32[]) =
-        BlobFunctions.caffe_blob_set_cpu_data(blobAnon, data)
+    member x.Diff
+        with get() = 
+            let ptr = BlobFunctions.caffe_blob_cpu_diff(blobAnon)
+            let result: float32[] = Array.zeroCreate (x.Count)
+            Marshal.Copy(ptr, result, 0, result.Length)
+            result
+        and  set (value: float32[]) =
+            let ptr = BlobFunctions.caffe_blob_mutable_cpu_diff(blobAnon)
+            Marshal.Copy(value, 0, ptr, x.Count)
 
-    member x.gpu_shape() =
+    // made some members private as I don't think they're necessary
+    // and won't work correctly yet
+    member private x.cpu_data() =
+        let ptr = BlobFunctions.caffe_blob_cpu_data(blobAnon)
+        let result: float32[] = Array.zeroCreate (x.Count)
+        Marshal.Copy(ptr, result, 0, result.Length)
+        result
+
+    member private x.set_cpu_data(data: float32[]) =
+        // should copy the data?
+        let dataHdl = GCHandle.Alloc(data)
+        BlobFunctions.caffe_blob_set_cpu_data(blobAnon, dataHdl.AddrOfPinnedObject())
+        dataHdl.Free()
+
+    member private x.gpu_shape() =
         BlobFunctions.caffe_blob_gpu_shape(blobAnon)
 
-    member x.gpu_data() =
+    member private x.gpu_data() =
         BlobFunctions.caffe_blob_gpu_data(blobAnon)
 
     member x.cpu_diff() =
         BlobFunctions.caffe_blob_cpu_diff(blobAnon)
 
-    member x.gpu_diff() =
+    member private x.gpu_diff() =
         BlobFunctions.caffe_blob_gpu_diff(blobAnon)
 
-    member x.mutable_cpu_data() =
+    member private x.mutable_cpu_data() =
         BlobFunctions.caffe_blob_mutable_cpu_data(blobAnon)
 
 
-    member x.mutable_gpu_data() =
+    member private x.mutable_gpu_data() =
         BlobFunctions.caffe_blob_mutable_gpu_data(blobAnon)
 
 
-    member x.mutable_cpu_diff() =
+    member private x.mutable_cpu_diff() =
         BlobFunctions.caffe_blob_mutable_cpu_diff(blobAnon)
 
 
-    member x.mutable_gpu_diff() =
+    member private x.mutable_gpu_diff() =
         BlobFunctions.caffe_blob_mutable_gpu_diff(blobAnon)
 
 

@@ -58,35 +58,35 @@ module BlobFunctions =
     extern float32 caffe_blob_diff_at_vector(IntPtr blobAnon, IntPtr index, int length)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern float32[] caffe_blob_cpu_data(IntPtr blobAnon)
+    extern IntPtr caffe_blob_cpu_data(IntPtr blobAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern void caffe_blob_set_cpu_data(IntPtr blobAnon, float32[] data)
+    extern void caffe_blob_set_cpu_data(IntPtr blobAnon, IntPtr data)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern int[] caffe_blob_gpu_shape(IntPtr blobAnon)
+    extern IntPtr caffe_blob_gpu_shape(IntPtr blobAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern float32[] caffe_blob_gpu_data(IntPtr blobAnon)
+    extern IntPtr caffe_blob_gpu_data(IntPtr blobAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern float32[] caffe_blob_cpu_diff(IntPtr blobAnon)
+    extern IntPtr caffe_blob_cpu_diff(IntPtr blobAnon)
 
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern float32[] caffe_blob_gpu_diff(IntPtr blobAnon)
+    extern IntPtr caffe_blob_gpu_diff(IntPtr blobAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern float32[] caffe_blob_mutable_cpu_data(IntPtr blobAnon)
+    extern IntPtr caffe_blob_mutable_cpu_data(IntPtr blobAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern float32[] caffe_blob_mutable_gpu_data(IntPtr blobAnon)
+    extern IntPtr caffe_blob_mutable_gpu_data(IntPtr blobAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern float32[] caffe_blob_mutable_cpu_diff(IntPtr blobAnon)
+    extern IntPtr caffe_blob_mutable_cpu_diff(IntPtr blobAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern float32[] caffe_blob_mutable_gpu_diff(IntPtr blobAnon)
+    extern IntPtr caffe_blob_mutable_gpu_diff(IntPtr blobAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern void caffe_blob_Update(IntPtr blobAnon)

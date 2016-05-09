@@ -5,11 +5,11 @@ open Caffe.Clr.Interop
 type Net(netFile: string, phase: Phase) = 
     let netAnon = NetFunctions.caffe_net_new(netFile, phase)
 
-    member x.layer_by_name(layer_name: string) =
+    member x.LayerByName(layer_name: string) =
         let layerPtr = NetFunctions.caffe_net_layer_by_name(netAnon, layer_name)
         new Layer(layerPtr)
 
-    member x.input_blob(i: int) =
+    member x.InputBlob(i: int) =
         let blobPtr = NetFunctions.caffe_net_input_blob(netAnon, i)
         new Blob(blobPtr)
 
@@ -64,25 +64,27 @@ type Net(netFile: string, phase: Phase) =
     member x.ToHDF5(filename, write_diff) =
         NetFunctions.caffe_net_ToHDF5(netAnon, filename, write_diff)
 
-    member x.name() =
-        NetFunctions.caffe_net_name(netAnon)
+    member x.Name
+        with get() =
+            NetFunctions.caffe_net_name(netAnon)
 
-    member x.layer_name(i: int) =
+    member x.LayerName(i: int) =
         NetFunctions.caffe_net_layer_name(netAnon, i)
 
-    member x.blob_name(i: int) =
+    member x.BlobName(i: int) =
         NetFunctions.caffe_net_blob_name(netAnon, i)
 
-    member x.blob(i: int) =
+    member x.Blob(i: int) =
         let blobPtr = NetFunctions.caffe_net_blob(netAnon, int i)
         new Blob(blobPtr)
 
-    member x.layer(i: int) =
+    member x.Layer(i: int) =
         let layerPtr = NetFunctions.caffe_net_layer(netAnon, int i)
         new Layer(layerPtr)
 
-    member x.phase() =
-        match NetFunctions.caffe_net_phase(netAnon) with
-        | 0 -> Phase.Train
-        | 1 -> Phase.Test
-        | _ -> failwith "unknown phase value"
+    member x.Phase
+        with get() =
+            match NetFunctions.caffe_net_phase(netAnon) with
+            | 0 -> Phase.Train
+            | 1 -> Phase.Test
+            | _ -> failwith "unknown phase value"

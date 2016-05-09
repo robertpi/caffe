@@ -1,10 +1,7 @@
 ﻿namespace Caffe.Clr.Interop
 open System
 open System.Runtime.InteropServices
-
-type Phase =
-    | Train = 0
-    | Test = 1
+open Caffe.Clr
 
 module NetFunctions =
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
