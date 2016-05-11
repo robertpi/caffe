@@ -14,6 +14,9 @@ module NetFunctions =
     extern IntPtr caffe_net_input_blob(IntPtr netAnon, int i);
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern int caffe_net_input_blobs_size(IntPtr netAnon);
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern void caffe_net_Forward(IntPtr netAnon, float32& loss)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
@@ -65,19 +68,25 @@ module NetFunctions =
     extern void caffe_net_ToHDF5(IntPtr netAnon, string filename, bool write_diff)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern string caffe_net_name(IntPtr netAnon)
+    extern IntPtr caffe_net_name(IntPtr netAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern string caffe_net_layer_name(IntPtr netAnon, int i)
+    extern IntPtr caffe_net_layer_name(IntPtr netAnon, int i)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern string caffe_net_blob_name(IntPtr netAnon, int i)
+    extern IntPtr caffe_net_blob_name(IntPtr netAnon, int i)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern IntPtr caffe_net_blob(IntPtr netAnon, int i)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern int caffe_net_blobs_size(IntPtr netAnon)
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern IntPtr caffe_net_layer(IntPtr netAnon, int i)
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern int caffe_net_layers_size(IntPtr netAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern int caffe_net_phase(IntPtr netAnon)

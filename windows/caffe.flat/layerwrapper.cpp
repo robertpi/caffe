@@ -62,10 +62,16 @@ EXPORT void caffe_layer_Backward(void *layerAnon, void *topAnon, void *propagate
 	layer->Backward(top, propagate_down, bottom);
 }
 
-EXPORT void *caffe_layer_blob(void *layerAnon, int i) 
+EXPORT void *caffe_layer_blob(void *layerAnon, int i)
 {
 	Layer<float> *layer = (Layer<float> *)layerAnon;
 	return layer->blobs()[i].get();
+}
+
+EXPORT int caffe_layer_blobs_size(void *layerAnon)
+{
+	Layer<float> *layer = (Layer<float> *)layerAnon;
+	return layer->blobs().size();
 }
 
 EXPORT float caffe_layer_loss(void *layerAnon, int top_index)

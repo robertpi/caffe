@@ -25,13 +25,16 @@ module LayerFunctions =
     extern IntPtr caffe_layer_blob(IntPtr layerAnon, int i) 
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern int caffe_layer_blobs_size(IntPtr layerAnon) 
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern float32 caffe_layer_loss(IntPtr layerAnon, int top_index)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern void caffe_layer_set_loss(IntPtr layerAnon, int top_index, float32 value)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern string caffe_layer_type(IntPtr layerAnon)
+    extern IntPtr caffe_layer_type(IntPtr layerAnon)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern int caffe_layer_ExactNumBottomBlobs(IntPtr layerAnon)

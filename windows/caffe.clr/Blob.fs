@@ -5,6 +5,8 @@ open Caffe.Clr.Interop
 
 type Blob internal (blobAnon: IntPtr) = 
 
+    do if blobAnon = IntPtr.Zero then failwith "blobAnon must not be null"
+
     static member FromShape(shape: int[]) =
         let shapeHdl = GCHandle.Alloc(shape)
         let blobPtr = BlobFunctions.caffe_blob_new(shapeHdl.AddrOfPinnedObject(), shape.Length)
@@ -69,25 +71,25 @@ type Blob internal (blobAnon: IntPtr) =
         indexHdl.Free()
         data
 
-    member x.Data
-        with get() = 
-            let ptr = BlobFunctions.caffe_blob_cpu_data(blobAnon)
-            let result: float32[] = Array.zeroCreate (x.Count)
-            Marshal.Copy(ptr, result, 0, result.Length)
-            result
-        and  set (value: float32[]) =
-            let ptr = BlobFunctions.caffe_blob_mutable_cpu_data(blobAnon)
-            Marshal.Copy(value, 0, ptr, x.Count)
+    member x.GetData() =
+        let ptr = BlobFunctions.caffe_blob_cpu_data(blobAnon)
+        let result: float32[] = Array.zeroCreate (x.Count)
+        Marshal.Copy(ptr, result, 0, result.Length)
+        result
 
-    member x.Diff
-        with get() = 
-            let ptr = BlobFunctions.caffe_blob_cpu_diff(blobAnon)
-            let result: float32[] = Array.zeroCreate (x.Count)
-            Marshal.Copy(ptr, result, 0, result.Length)
-            result
-        and  set (value: float32[]) =
-            let ptr = BlobFunctions.caffe_blob_mutable_cpu_diff(blobAnon)
-            Marshal.Copy(value, 0, ptr, x.Count)
+    member x.SetGetData (value: float[]) =
+        let ptr = BlobFunctions.caffe_blob_mutable_cpu_data(blobAnon)
+        Marshal.Copy(value, 0, ptr, x.Count)
+
+    member x.GetDiff() =
+        let ptr = BlobFunctions.caffe_blob_cpu_diff(blobAnon)
+        let result: float32[] = Array.zeroCreate (x.Count)
+        Marshal.Copy(ptr, result, 0, result.Length)
+        result
+
+    member x.SetDiff(value: float32[]) =
+        let ptr = BlobFunctions.caffe_blob_mutable_cpu_diff(blobAnon)
+        Marshal.Copy(value, 0, ptr, x.Count)
 
     // made some members private as I don't think they're necessary
     // and won't work correctly yet

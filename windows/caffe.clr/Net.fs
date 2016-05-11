@@ -1,17 +1,44 @@
 ﻿namespace Caffe.Clr
 open System
+open System.Runtime.InteropServices
 open Caffe.Clr.Interop
 
 type Net(netFile: string, phase: Phase) = 
     let netAnon = NetFunctions.caffe_net_new(netFile, phase)
 
+    let getBlob i = 
+        let blobPtr = NetFunctions.caffe_net_blob(netAnon, i)
+        new Blob(blobPtr)
+    let getBlobsSize() = NetFunctions.caffe_net_blobs_size(netAnon)
+    let blobs = new UnmanagedCollection<Blob>(getBlob, getBlobsSize)
+
+    let getLayer i = 
+        let layerPtr = NetFunctions.caffe_net_layer(netAnon, i)
+        new Layer(layerPtr)
+    let getLayersSize() = NetFunctions.caffe_net_layers_size(netAnon)
+    let layers = new UnmanagedCollection<Layer>(getLayer, getLayersSize)
+
+    let getInputBlob i = 
+        let layerPtr = NetFunctions.caffe_net_input_blob(netAnon, i)
+        new Blob(layerPtr)
+    let getInputBlobsSize() = NetFunctions.caffe_net_input_blobs_size(netAnon)
+    let inputBolbs = new UnmanagedCollection<Blob>(getInputBlob, getLayersSize)
+
+    let getLayerName i = 
+        let ptr = NetFunctions.caffe_net_layer_name(netAnon, i)
+        Common.MarshalString (ptr)
+    let layerNames = new UnmanagedCollection<string>(getLayerName, getLayersSize)
+
+    let getBlobName i = 
+        let ptr = NetFunctions.caffe_net_blob_name(netAnon, i)
+        Common.MarshalString (ptr)
+    let blobNames = new UnmanagedCollection<string>(getBlobName, getLayersSize)
+
     member x.LayerByName(layer_name: string) =
         let layerPtr = NetFunctions.caffe_net_layer_by_name(netAnon, layer_name)
         new Layer(layerPtr)
 
-    member x.InputBlob(i: int) =
-        let blobPtr = NetFunctions.caffe_net_input_blob(netAnon, i)
-        new Blob(blobPtr)
+    member x.InputBlobs = inputBolbs
 
     member x.Forward(loss: byref<float32>) =
         NetFunctions.caffe_net_Forward(netAnon, &loss)
@@ -66,21 +93,16 @@ type Net(netFile: string, phase: Phase) =
 
     member x.Name
         with get() =
-            NetFunctions.caffe_net_name(netAnon)
+            let ptr = NetFunctions.caffe_net_name(netAnon)
+            Common.MarshalString (ptr)
 
-    member x.LayerName(i: int) =
-        NetFunctions.caffe_net_layer_name(netAnon, i)
+    member x.LayerNames = layerNames
 
-    member x.BlobName(i: int) =
-        NetFunctions.caffe_net_blob_name(netAnon, i)
+    member x.BlobNames = blobNames
 
-    member x.Blob(i: int) =
-        let blobPtr = NetFunctions.caffe_net_blob(netAnon, int i)
-        new Blob(blobPtr)
+    member x.Blobs = blobs
 
-    member x.Layer(i: int) =
-        let layerPtr = NetFunctions.caffe_net_layer(netAnon, int i)
-        new Layer(layerPtr)
+    member x.Layers = layers
 
     member x.Phase
         with get() =

@@ -5,6 +5,14 @@ open Caffe.Clr.Interop
 
 type Layer internal (layerAnon: IntPtr) = 
 
+    do if layerAnon = IntPtr.Zero then failwith "layerAnon must not be null"
+
+    let getBlob i = 
+        let blobPtr = LayerFunctions.caffe_layer_blob(layerAnon, i)
+        new Blob(blobPtr)
+    let getBlobsSize() = LayerFunctions.caffe_layer_blobs_size(layerAnon)
+    let blobs = new UnmanagedCollection<Blob>(getBlob, getBlobsSize)
+
     member private x.GetIntPtr() =
         layerAnon
 
@@ -49,21 +57,19 @@ type Layer internal (layerAnon: IntPtr) =
         propHdl.Free()
         bottomHdl.Free()
 
-    member x.Blob(i: int) =
-        let blobPtr = LayerFunctions.caffe_layer_blob(layerAnon, i) 
-        new Blob(blobPtr)
+    member x.Blobs = blobs
 
-    member x.loss(top_index: int) =
-        LayerFunctions.caffe_layer_loss(layerAnon, top_index)
-
-    member x.set_loss(top_index: int, value: float32) =
-        LayerFunctions.caffe_layer_set_loss(layerAnon, top_index, value)
+    member x.Loss
+        with get(top_index: int) =
+            LayerFunctions.caffe_layer_loss(layerAnon, top_index)
+        and set(top_index: int) (value: float32) =
+            LayerFunctions.caffe_layer_set_loss(layerAnon, top_index, value)
 
 
     member x.Type
         with get() =
-            LayerFunctions.caffe_layer_type(layerAnon)
-
+            let ptr = LayerFunctions.caffe_layer_type(layerAnon)
+            Common.MarshalString (ptr)
 
     member x.ExactNumBottomBlobs
         with get() =
@@ -72,7 +78,6 @@ type Layer internal (layerAnon: IntPtr) =
     member x.MinBottomBlobs
         with get() =
             LayerFunctions.caffe_layer_MinBottomBlobs(layerAnon)
-
 
     member x.MaxBottomBlobs
         with get() =

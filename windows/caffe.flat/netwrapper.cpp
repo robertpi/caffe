@@ -32,6 +32,12 @@ EXPORT void *caffe_net_input_blob(void *netAnon, int i)
 	return net->input_blobs()[i];
 }
 
+EXPORT int caffe_net_input_blobs_size(void *netAnon)
+{
+	Net<float> *net = (Net<float> *)netAnon;
+	return net->input_blobs().size();
+}
+
 EXPORT void caffe_net_Forward(void *netAnon, float &loss)
 {
 	Net<float> *net = (Net<float> *)netAnon;
@@ -161,10 +167,22 @@ EXPORT void *caffe_net_blob(void *netAnon, int i)
 	return net->blobs()[i].get();
 }
 
+EXPORT int caffe_net_blobs_size(void *netAnon)
+{
+	Net<float> *net = (Net<float> *)netAnon;
+	return net->blobs().size();
+}
+
 EXPORT void *caffe_net_layer(void *netAnon, int i)
 {
 	Net<float> *net = (Net<float> *)netAnon;
 	return net->layers()[i].get();
+}
+
+EXPORT int caffe_net_layers_size(void *netAnon)
+{
+	Net<float> *net = (Net<float> *)netAnon;
+	return net->layers().size();
 }
 
 EXPORT int caffe_net_phase(void *netAnon)
