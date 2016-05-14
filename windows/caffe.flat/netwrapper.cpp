@@ -38,6 +38,18 @@ EXPORT int caffe_net_input_blobs_size(void *netAnon)
 	return net->input_blobs().size();
 }
 
+EXPORT void *caffe_net_output_blob(void *netAnon, int i)
+{
+	Net<float> *net = (Net<float> *)netAnon;
+	return net->output_blobs()[i];
+}
+
+EXPORT int caffe_net_output_blobs_size(void *netAnon)
+{
+	Net<float> *net = (Net<float> *)netAnon;
+	return net->output_blobs().size();
+}
+
 EXPORT void caffe_net_Forward(void *netAnon, float &loss)
 {
 	Net<float> *net = (Net<float> *)netAnon;

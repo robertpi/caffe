@@ -21,6 +21,29 @@ EXPORT void *caffe_blob_new(int *shape, int length)
 	return new Blob<float>(shapeVec);
 }
 
+EXPORT void *caffe_blob_new_empty()
+{
+	return new Blob<float>();
+}
+
+EXPORT void *caffe_blob_new_FromProto(char *file)
+{
+	BlobProto proto;
+	ReadProtoFromBinaryFileOrDie(file, &proto);
+
+	Blob<float> *blob = new Blob<float>();
+	blob->FromProto(proto);
+
+	int count = blob->count();
+
+	int shape = blob->shape()[0];
+	shape = blob->shape()[1];
+	shape = blob->shape()[2];
+	shape = blob->shape()[3];
+
+	return blob;
+}
+
 EXPORT void caffe_blob_Reshape(void *blobAnon, int *shape, int length)
 {
 	Blob<float> *blob = (Blob<float> *)blobAnon;
@@ -222,3 +245,8 @@ EXPORT void caffe_blob_scale_diff(void *blobAnon, float scale_factor)
 	blob->scale_diff(scale_factor);
 }
 
+EXPORT void caffe_blob_FromProto(void *blobAnon, const BlobProto& proto, bool reshape)
+{
+	Blob<float> *blob = (Blob<float> *)blobAnon;
+	blob->FromProto(proto, reshape);
+}

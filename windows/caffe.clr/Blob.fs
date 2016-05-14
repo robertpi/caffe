@@ -8,7 +8,7 @@ type Blob internal (blobAnon: IntPtr) =
     do if blobAnon = IntPtr.Zero then failwith "blobAnon must not be null"
 
     static member FromShape(shape: int[]) =
-        let shapeHdl = GCHandle.Alloc(shape)
+        let shapeHdl = GCHandle.Alloc(shape, GCHandleType.Pinned)
         let blobPtr = BlobFunctions.caffe_blob_new(shapeHdl.AddrOfPinnedObject(), shape.Length)
         shapeHdl.Free()
         new Blob(blobPtr)
@@ -17,7 +17,7 @@ type Blob internal (blobAnon: IntPtr) =
         blobAnon
 
     member x.Reshape(shape: int[]) =
-        let shapeHdl = GCHandle.Alloc(shape)
+        let shapeHdl = GCHandle.Alloc(shape, GCHandleType.Pinned)
         let blobPtr = BlobFunctions.caffe_blob_Reshape(blobAnon, shapeHdl.AddrOfPinnedObject(), shape.Length)
         shapeHdl.Free()
 
@@ -25,8 +25,9 @@ type Blob internal (blobAnon: IntPtr) =
         let otherPtr = other.GetIntPtr()
         BlobFunctions.caffe_blob_ReshapeLike(blobAnon, otherPtr)
 
-    member x.Shape(index: int) =
-        BlobFunctions.caffe_blob_shape(blobAnon, index)
+    member x.Shape
+        with get (index: int) =
+            BlobFunctions.caffe_blob_shape(blobAnon, index)
 
     member x.NumberOfAxes() =
         BlobFunctions.caffe_blob_num_axes(blobAnon)
@@ -48,7 +49,7 @@ type Blob internal (blobAnon: IntPtr) =
         BlobFunctions.caffe_blob_offset(blobAnon, n, c, h, w)
 
     member x.Offset(indices: int[]) =
-        let indicesHdl = GCHandle.Alloc(indices)
+        let indicesHdl = GCHandle.Alloc(indices, GCHandleType.Pinned)
         let offset = BlobFunctions.caffe_blob_offset_vector(blobAnon, indicesHdl.AddrOfPinnedObject(), indices.Length)
         indicesHdl.Free()
         offset
@@ -57,7 +58,7 @@ type Blob internal (blobAnon: IntPtr) =
         BlobFunctions.caffe_blob_data_at(blobAnon, n, c, h, w)
 
     member x.DataAt(index: int[]) =
-        let indexHdl = GCHandle.Alloc(index)
+        let indexHdl = GCHandle.Alloc(index, GCHandleType.Pinned)
         let data = BlobFunctions.caffe_blob_data_at_vector(blobAnon, indexHdl.AddrOfPinnedObject(), index.Length)
         indexHdl.Free()
         data
@@ -66,18 +67,19 @@ type Blob internal (blobAnon: IntPtr) =
         BlobFunctions.caffe_blob_diff_at(blobAnon, n, c, h, w)
 
     member x.DiffAt(index: int[]) =
-        let indexHdl = GCHandle.Alloc(index)
+        let indexHdl = GCHandle.Alloc(index, GCHandleType.Pinned)
         let data = BlobFunctions.caffe_blob_diff_at_vector(blobAnon, indexHdl.AddrOfPinnedObject(), index.Length)
         indexHdl.Free()
         data
 
     member x.GetData() =
         let ptr = BlobFunctions.caffe_blob_cpu_data(blobAnon)
-        let result: float32[] = Array.zeroCreate (x.Count)
+        let c = x.Count
+        let result: float32[] = Array.zeroCreate (c)
         Marshal.Copy(ptr, result, 0, result.Length)
         result
 
-    member x.SetGetData (value: float[]) =
+    member x.SetData (value: float32[]) =
         let ptr = BlobFunctions.caffe_blob_mutable_cpu_data(blobAnon)
         Marshal.Copy(value, 0, ptr, x.Count)
 
@@ -101,7 +103,7 @@ type Blob internal (blobAnon: IntPtr) =
 
     member private x.set_cpu_data(data: float32[]) =
         // should copy the data?
-        let dataHdl = GCHandle.Alloc(data)
+        let dataHdl = GCHandle.Alloc(data, GCHandleType.Pinned)
         BlobFunctions.caffe_blob_set_cpu_data(blobAnon, dataHdl.AddrOfPinnedObject())
         dataHdl.Free()
 
@@ -133,29 +135,37 @@ type Blob internal (blobAnon: IntPtr) =
         BlobFunctions.caffe_blob_mutable_gpu_diff(blobAnon)
 
 
-    member x.blob_Update() =
+    member x.Update() =
         BlobFunctions.caffe_blob_Update(blobAnon)
 
 
-    member x.asum_data() =
+    member x.AsumData() =
         BlobFunctions.caffe_blob_asum_data(blobAnon)
 
 
-    member x.asum_diff() =
+    member x.AsumDiff() =
         BlobFunctions.caffe_blob_asum_diff(blobAnon)
 
 
-    member x.sumsq_data() =
+    member x.SumSqData() =
         BlobFunctions.caffe_blob_sumsq_data(blobAnon)
 
 
-    member x.sumsq_diff() =
+    member x.SumSqDiff() =
         BlobFunctions.caffe_blob_sumsq_diff(blobAnon)
 
 
-    member x.scale_data(scale_factor: float32) =
+    member x.ScaleData(scale_factor: float32) =
         BlobFunctions.caffe_blob_scale_data(blobAnon, scale_factor)
 
 
-    member x.scale_diff(scale_factor: float32) =
+    member x.ScaleDiff(scale_factor: float32) =
         BlobFunctions.caffe_blob_scale_diff(blobAnon, scale_factor)
+
+    member x.FromProto(blobProto: BlobProto, reshape: bool) =
+        BlobFunctions.caffe_blob_FromProto(blobAnon, blobProto.GetIntPtr(), reshape)
+
+    static member FromProtoFile(blobProtoFile: string) =
+        let ptr = BlobFunctions.caffe_blob_new_FromProto(blobProtoFile)
+
+        new Blob(ptr)

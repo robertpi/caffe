@@ -17,6 +17,12 @@ module NetFunctions =
     extern int caffe_net_input_blobs_size(IntPtr netAnon);
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern IntPtr caffe_net_output_blob(IntPtr netAnon, int i);
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern int caffe_net_output_blobs_size(IntPtr netAnon);
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern void caffe_net_Forward(IntPtr netAnon, float32& loss)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]

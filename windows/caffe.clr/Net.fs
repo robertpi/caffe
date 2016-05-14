@@ -22,7 +22,13 @@ type Net(netFile: string, phase: Phase) =
         let layerPtr = NetFunctions.caffe_net_input_blob(netAnon, i)
         new Blob(layerPtr)
     let getInputBlobsSize() = NetFunctions.caffe_net_input_blobs_size(netAnon)
-    let inputBolbs = new UnmanagedCollection<Blob>(getInputBlob, getLayersSize)
+    let inputBlobs = new UnmanagedCollection<Blob>(getInputBlob, getInputBlobsSize)
+
+    let getOutputBlob i = 
+        let layerPtr = NetFunctions.caffe_net_input_blob(netAnon, i)
+        new Blob(layerPtr)
+    let getOutputBlobsSize() = NetFunctions.caffe_net_output_blobs_size(netAnon)
+    let outputBlobs = new UnmanagedCollection<Blob>(getOutputBlob, getOutputBlobsSize)
 
     let getLayerName i = 
         let ptr = NetFunctions.caffe_net_layer_name(netAnon, i)
@@ -38,7 +44,9 @@ type Net(netFile: string, phase: Phase) =
         let layerPtr = NetFunctions.caffe_net_layer_by_name(netAnon, layer_name)
         new Layer(layerPtr)
 
-    member x.InputBlobs = inputBolbs
+    member x.InputBlobs = inputBlobs
+
+    member x.OutputBlobs = outputBlobs
 
     member x.Forward(loss: byref<float32>) =
         NetFunctions.caffe_net_Forward(netAnon, &loss)

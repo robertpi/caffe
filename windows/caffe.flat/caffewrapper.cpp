@@ -28,3 +28,10 @@ EXPORT void caffe_SetDevice(int deviceId)
 		Caffe::set_mode(Caffe::CPU);
 	}
 }
+
+EXPORT void *caffe_ReadProtoFromBinaryFileOrDie(const char* filename)
+{
+	BlobProto proto;
+	caffe::ReadProtoFromBinaryFileOrDie(filename, &proto);
+	return &proto;
+}

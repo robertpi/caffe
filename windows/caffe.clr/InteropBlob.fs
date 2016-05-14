@@ -9,6 +9,12 @@ module BlobFunctions =
     extern IntPtr caffe_blob_new(IntPtr shape, int length)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern IntPtr caffe_blob_new_empty()
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern IntPtr caffe_blob_new_FromProto(string file)
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern void caffe_blob_Reshape(IntPtr blobAnon, IntPtr shape, int length)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
@@ -108,3 +114,6 @@ module BlobFunctions =
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern void caffe_blob_scale_diff(IntPtr blobAnon, float32 scale_factor)
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern void caffe_blob_FromProto(IntPtr blobAnon, IntPtr proto, bool reshape)

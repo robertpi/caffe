@@ -5,14 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>e6b5eaa8-d3b5-4221-8129-8ba113b88768</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>caffe.clr</RootNamespace>
-    <AssemblyName>caffe.clr</AssemblyName>
+    <ProjectGuid>f0d9fab2-ccf3-49ca-8aa8-b32779e6cb3c</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>fs_classification</RootNamespace>
+    <AssemblyName>fs_classification</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>caffe.clr</Name>
+    <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
+    <Name>fs_classification</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +22,10 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\caffe.clr.XML</DocumentationFile>
+    <PlatformTarget>x64</PlatformTarget>
+    <DocumentationFile>bin\Debug\fs_classification.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+    <StartArguments>..\..\deploy.prototxt ..\..\bvlc_reference_rcnn_ilsvrc13.caffemodel ..\..\imagenet_mean.binaryproto ..\..\synset_words.txt ..\..\..\..\..\examples\images\cat.jpg</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +34,9 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\caffe.clr.XML</DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Release\fs_classification.XML</DocumentationFile>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -40,23 +45,20 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Common.fs" />
-    <Compile Include="InteropCommon.fs" />
-    <Compile Include="InteropCaffe.fs" />
-    <Compile Include="InteropBlob.fs" />
-    <Compile Include="InteropLayer.fs" />
-    <Compile Include="InteropNet.fs" />
-    <Compile Include="UnmanagedCollection.fs" />
-    <Compile Include="BlobProto.fs" />
-    <Compile Include="Caffe.fs" />
-    <Compile Include="Blob.fs" />
-    <Compile Include="Layer.fs" />
-    <Compile Include="Net.fs" />
-    <None Include="Script.fsx" />
+    <Compile Include="Program.fs" />
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\caffe.clr\caffe.clr.fsproj">
+      <Name>caffe.clr</Name>
+      <Project>{e6b5eaa8-d3b5-4221-8129-8ba113b88768}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -75,7 +77,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <PropertyGroup>
-    <PostBuildEvent>copy C:\code\mscaffe\Build\x64\Debug\* $(TargetDir)</PostBuildEvent>
+    <PreBuildEvent>copy C:\code\mscaffe\Build\x64\Debug\* $(TargetDir)</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
