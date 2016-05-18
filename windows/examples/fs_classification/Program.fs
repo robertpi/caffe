@@ -75,9 +75,15 @@ module Classification =
 
         let output = net.OutputBlobs |> Seq.head
 
-        let labels = File.ReadLines(labelFile)
+        let labels = File.ReadAllLines(labelFile)
+        let resultChannels = output.Shape(Shape_Channels)
+
+        //assert (labels.Length = resultChannels)
+
+        let resultData = output.GetData()
+
         let results =
-            Seq.zip (output.GetData()) labels
+            Seq.zip resultData labels
             |> Seq.sortByDescending fst
             |> Seq.take 10
 

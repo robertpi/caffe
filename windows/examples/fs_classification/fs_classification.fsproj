@@ -25,7 +25,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <DocumentationFile>bin\Debug\fs_classification.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
-    <StartArguments>..\..\deploy.prototxt ..\..\bvlc_reference_caffenet.caffemodel ..\..\imagenet_mean.binaryproto ..\..\synset_words.txt ..\..\..\..\..\examples\images\cat.jpg</StartArguments>
+    <StartArguments>..\..\..\..\..\models\bvlc_reference_caffenet\deploy.prototxt ..\..\bvlc_reference_caffenet.caffemodel ..\..\imagenet_mean.binaryproto ..\..\synset_words.txt ..\..\..\..\..\examples\images\cat.jpg</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>

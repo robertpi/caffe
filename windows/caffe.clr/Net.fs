@@ -25,7 +25,7 @@ type Net(netFile: string, phase: Phase) =
     let inputBlobs = new UnmanagedCollection<Blob>(getInputBlob, getInputBlobsSize)
 
     let getOutputBlob i = 
-        let layerPtr = NetFunctions.caffe_net_input_blob(netAnon, i)
+        let layerPtr = NetFunctions.caffe_net_output_blob(netAnon, i)
         new Blob(layerPtr)
     let getOutputBlobsSize() = NetFunctions.caffe_net_output_blobs_size(netAnon)
     let outputBlobs = new UnmanagedCollection<Blob>(getOutputBlob, getOutputBlobsSize)
