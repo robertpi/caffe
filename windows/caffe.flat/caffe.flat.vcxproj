@@ -97,6 +97,7 @@
     <ClCompile Include="caffeflatapi.cpp" />
     <ClCompile Include="layerwrapper.cpp" />
     <ClCompile Include="netwrapper.cpp" />
+    <ClCompile Include="opencvwrapper.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

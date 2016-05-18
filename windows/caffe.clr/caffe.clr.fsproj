@@ -50,12 +50,14 @@
     <Compile Include="InteropBlob.fs" />
     <Compile Include="InteropLayer.fs" />
     <Compile Include="InteropNet.fs" />
+    <Compile Include="InteropOpenCV.fs" />
     <Compile Include="UnmanagedCollection.fs" />
     <Compile Include="BlobProto.fs" />
     <Compile Include="Caffe.fs" />
     <Compile Include="Blob.fs" />
     <Compile Include="Layer.fs" />
     <Compile Include="Net.fs" />
+    <Compile Include="OpenCv.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>

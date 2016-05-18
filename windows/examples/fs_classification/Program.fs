@@ -60,25 +60,18 @@ module Classification =
         net.Reshape()
 
         let byteData = arrayOfImage bitmap
-        let rbg =
-            seq { for i in 0 .. 4 .. byteData.Length - 1 do
-                    yield float32 byteData.[i]
-                    yield float32 byteData.[i + 1]
-                    yield float32 byteData.[i + 2] }
-
 
         meanBlob.Reshape([|1; numChannels; bitmap.Width; bitmap.Height |])
         let mean = meanBlob.GetData()
 
-        let allChanels =
-            Seq.zip rbg  mean
-            |> Seq.map (fun (x, mean) -> (x - mean) / 255.f)
-            |> Seq.toArray
-        inputBlob.SetData(allChanels)
+        let matrix = OpenCV.CalculateMeanMatrix(mean, numChannels, bitmap.Width, bitmap.Height, bitmap.Width, bitmap.Height)
+        OpenCV.LoadImage(file, inputBlob, matrix)
 
+        let data = inputBlob.GetData()
 
         let loss = ref 0.0f
         net.Forward(loss)
+
 
         let output = net.OutputBlobs |> Seq.head
 
