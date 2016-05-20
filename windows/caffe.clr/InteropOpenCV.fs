@@ -20,6 +20,12 @@ module OpenCVFunctions =
     extern int opencv_matrix_width(IntPtr target)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern int opencv_matrix_type(IntPtr target)
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern IntPtr opencv_matrix_new(int width, int height, int ``type``, IntPtr init_value)
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern IntPtr opencv_resize(IntPtr m, int width, int height)
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
@@ -29,5 +35,7 @@ module OpenCVFunctions =
     extern void load_image(string imgFile, IntPtr inputBlob, IntPtr meanMatrix);
     
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
-    extern IntPtr calculate_mean_matrix(IntPtr data, int num_channels, int mean_width, int mean_height, int img_width, int img_height)
+    extern IntPtr opencv_merge_float_array(IntPtr data, int num_channels, int width, int height)
 
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern IntPtr opencv_mean(IntPtr mean)

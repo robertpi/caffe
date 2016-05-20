@@ -14,20 +14,6 @@ module Classification =
 
     let CV_32FC3 = 21
 
-    let arrayOfImage (bitmap: Bitmap) =
-        let bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat)
-        try
-            let numbytes = bmpdata.Stride * bitmap.Height
-            let bytedata: byte[] = Array.zeroCreate numbytes
-            let ptr = bmpdata.Scan0;
-
-            Marshal.Copy(ptr, bytedata, 0, numbytes)
-
-            bytedata
-        finally
-            bitmap.UnlockBits(bmpdata)
-
-
     [<EntryPoint>]
     let main argv = 
         let modelFile   = argv.[0]
@@ -62,7 +48,10 @@ module Classification =
         let numChannels = 3 
 
         let mean = meanBlob.GetData()
-        let meanMatrix = OpenCV.CalculateMeanMatrix(mean, numChannels, size.Width, size.Height, size.Width, size.Height)
+        let meanMatrix = OpenCV.MergeFloatArray(mean, numChannels, meanBlob.Shape(Shape_Width), meanBlob.Shape(Shape_Height))
+        let mean = OpenCV.Mean(meanMatrix)
+        let meanMatrix = Matrix.FromDimensions(size.Width, size.Height, meanMatrix.Type(), mean)
+
 
         let sampleNormalized = OpenCV.Subtract(sampleFloat, meanMatrix)
 
