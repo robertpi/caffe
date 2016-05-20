@@ -12,6 +12,8 @@ module Classification =
     let Shape_Width = 2
     let Shape_Height = 3
 
+    let CV_32FC3 = 21
+
     let arrayOfImage (bitmap: Bitmap) =
         let bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat)
         try
@@ -50,24 +52,25 @@ module Classification =
         let size = new Size(inputBlob.Shape(Shape_Width), inputBlob.Shape(Shape_Height))
         
 
-        let bitmap = Image.FromFile(file) :?> Bitmap 
+        let img = OpenCV.ImageRead(file, -1)
 
-        let bitmap = new Bitmap(bitmap, size)
+        // TODO don't resize if we're the same size
+        let imgResized = OpenCV.Resize(img, size.Width, size.Height)
+
+        let sampleFloat = imgResized.ConvertTo(CV_32FC3)
 
         let numChannels = 3 
 
-        inputBlob.Reshape([|1; numChannels; bitmap.Width; bitmap.Height|])
+        let mean = meanBlob.GetData()
+        let meanMatrix = OpenCV.CalculateMeanMatrix(mean, numChannels, size.Width, size.Height, size.Width, size.Height)
+
+        let sampleNormalized = OpenCV.Subtract(sampleFloat, meanMatrix)
+
+        OpenCV.SplitToInputBlob(sampleNormalized, inputBlob)
+
+        inputBlob.Reshape([|1; numChannels; size.Width; size.Height|])
         net.Reshape()
 
-        let byteData = arrayOfImage bitmap
-
-        meanBlob.Reshape([|1; numChannels; bitmap.Width; bitmap.Height |])
-        let mean = meanBlob.GetData()
-
-        let matrix = OpenCV.CalculateMeanMatrix(mean, numChannels, bitmap.Width, bitmap.Height, bitmap.Width, bitmap.Height)
-        OpenCV.LoadImage(file, inputBlob, matrix)
-
-        let data = inputBlob.GetData()
 
         let loss = ref 0.0f
         net.Forward(loss)
@@ -78,7 +81,7 @@ module Classification =
         let labels = File.ReadAllLines(labelFile)
         let resultChannels = output.Shape(Shape_Channels)
 
-        //assert (labels.Length = resultChannels)
+        assert (labels.Length = resultChannels)
 
         let resultData = output.GetData()
 
