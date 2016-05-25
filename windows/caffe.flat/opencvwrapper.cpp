@@ -22,6 +22,11 @@ EXPORT void *opencv_imread(char *file, int i)
 	return new cv::Mat(img);
 }
 
+EXPORT void opencv_imwrite(char *file, cv::Mat* img)
+{
+	cv::imwrite(file, *img);
+}
+
 
 EXPORT void opencv_split_to_input_blob(cv::Mat *img, Blob<float>* input_blob)
 {
@@ -64,9 +69,14 @@ EXPORT int opencv_matrix_type(cv::Mat* target)
 	return target->type();
 }
 
-EXPORT void *opencv_matrix_new(int width, int height, int type, cv::Scalar *init_value)
+EXPORT void *opencv_matrix_new_from_scalar(int rows, int cols, int type, cv::Scalar *init_value)
 {
-	return new cv::Mat(height, width, type, *init_value);
+	return new cv::Mat(rows, cols, type, *init_value);
+}
+
+EXPORT void *opencv_matrix_new_from_data(int rows, int cols, int type, void *data)
+{
+	return new cv::Mat(rows, cols, type, data);
 }
 
 EXPORT void *opencv_resize(cv::Mat *m, int width, int height)
@@ -81,6 +91,13 @@ EXPORT void *opencv_subtract(cv::Mat *mX, cv::Mat *mY)
 {
 	cv::Mat *mZ = new cv::Mat();
 	cv::subtract(*mX, *mY, *mZ);
+	return mZ;
+}
+
+EXPORT void *opencv_add(cv::Mat *mX, cv::Mat *mY)
+{
+	cv::Mat *mZ = new cv::Mat();
+	cv::add(*mX, *mY, *mZ);
 	return mZ;
 }
 

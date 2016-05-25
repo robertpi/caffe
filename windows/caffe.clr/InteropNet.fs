@@ -11,6 +11,9 @@ module NetFunctions =
     extern IntPtr caffe_net_layer_by_name(IntPtr netAnon, string layer_name);
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
+    extern IntPtr caffe_net_blob_by_name(IntPtr netAnon, string blob_name);
+
+    [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
     extern IntPtr caffe_net_input_blob(IntPtr netAnon, int i);
 
     [<DllImport(Common.LibraryName, CharSet = CharSet.Ansi)>]
