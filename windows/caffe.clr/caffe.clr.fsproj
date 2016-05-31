@@ -40,6 +40,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +59,10 @@
     <Compile Include="Layer.fs" />
     <Compile Include="Net.fs" />
     <Compile Include="OpenCv.fs" />
+    <Compile Include="ArrayHelpers.fs" />
+    <Compile Include="BlobHelpers.fs" />
+    <Compile Include="PseudoMatrices.fs" />
+    <Compile Include="DotNetImaging.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>

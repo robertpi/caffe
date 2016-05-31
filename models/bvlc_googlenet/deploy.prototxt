@@ -1,4 +1,5 @@
 name: "GoogleNet"
+force_backward: True
 layer {
   name: "data"
   type: "Input"
@@ -2104,54 +2105,4 @@ layer {
   bottom: "inception_5b/5x5"
   bottom: "inception_5b/pool_proj"
   top: "inception_5b/output"
-}
-layer {
-  name: "pool5/7x7_s1"
-  type: "Pooling"
-  bottom: "inception_5b/output"
-  top: "pool5/7x7_s1"
-  pooling_param {
-    pool: AVE
-    kernel_size: 7
-    stride: 1
-  }
-}
-layer {
-  name: "pool5/drop_7x7_s1"
-  type: "Dropout"
-  bottom: "pool5/7x7_s1"
-  top: "pool5/7x7_s1"
-  dropout_param {
-    dropout_ratio: 0.4
-  }
-}
-layer {
-  name: "loss3/classifier"
-  type: "InnerProduct"
-  bottom: "pool5/7x7_s1"
-  top: "loss3/classifier"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 1000
-    weight_filler {
-      type: "xavier"
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "prob"
-  type: "Softmax"
-  bottom: "loss3/classifier"
-  top: "prob"
 }
