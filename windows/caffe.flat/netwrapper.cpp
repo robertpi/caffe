@@ -20,10 +20,14 @@ EXPORT void *caffe_net_new(char *netFile, const Phase phase)
 	return new Net<float>(netFile, phase);
 }
 
-EXPORT void *caffe_net_layer_by_name(void *netAnon, const char *layer_name)
+EXPORT void *caffe_net_layer_by_name(Net<float> *net, const char *layer_name)
 {
-	Net<float> *net = (Net<float> *)netAnon;
 	return net->layer_by_name(layer_name).get();
+}
+
+EXPORT void *caffe_net_blob_by_name(Net<float> *net, const char *blob_name)
+{
+	return net->blob_by_name(blob_name).get();
 }
 
 EXPORT void *caffe_net_input_blob(void *netAnon, int i)
