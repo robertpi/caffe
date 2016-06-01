@@ -58,11 +58,24 @@ type Net(netFile: string, phase: Phase) =
     member x.ForwardFromTo(start: int, ``end``: int) =
         NetFunctions.caffe_net_ForwardFromTo(netAnon, start, ``end``)
 
+    member x.ForwardFromTo(start: string, ``end``: string) =
+        let startIndex = x.LayerNames |> Seq.find (fun x -> x = start)
+        let endIndex = x.LayerNames |> Seq.find (fun x -> x = ``end``)
+        x.ForwardFromTo(startIndex, endIndex)
+
     member x.ForwardFrom(start: int) =
         NetFunctions.caffe_net_ForwardFrom(netAnon, start)
 
+    member x.ForwardFrom(start: string) =
+        let startIndex = x.LayerNames |> Seq.find (fun x -> x = start)
+        x.ForwardFrom(startIndex)
+
     member x.ForwardTo(``end``: int) =
         NetFunctions.caffe_net_ForwardTo(netAnon, ``end``)
+
+    member x.ForwardTo(``end``: string) =
+        let endIndex = x.LayerNames |> Seq.find (fun x -> x = ``end``)
+        x.ForwardTo(endIndex)
 
     member x.ClearParamDiffs() =
         NetFunctions.caffe_net_ClearParamDiffs(netAnon)
@@ -73,11 +86,24 @@ type Net(netFile: string, phase: Phase) =
     member x.BackwardFromTo(start: int, ``end``: int) =
         NetFunctions.caffe_net_BackwardFromTo(netAnon, start, ``end``)
 
+    member x.BackwardFromTo(start: string, ``end``: string) =
+        let startIndex = x.LayerNames |> Seq.find (fun x -> x = start)
+        let endIndex = x.LayerNames |> Seq.find (fun x -> x = ``end``)
+        x.BackwardFromTo(startIndex, endIndex)
+
     member x.BackwardFrom(start: int) =
         NetFunctions.caffe_net_BackwardFrom(netAnon, start)
 
+    member x.BackwardFrom(start: string) =
+        let startIndex = x.LayerNames |> Seq.find (fun x -> x = start)
+        x.BackwardFrom(startIndex)
+
     member x.BackwardTo(``end``: int) =
         NetFunctions.caffe_net_BackwardTo(netAnon, ``end``)
+
+    member x.BackwardTo(``end``: string) =
+        let endIndex = x.LayerNames |> Seq.find (fun x -> x = ``end``)
+        x.BackwardTo(endIndex)
 
     member x.Reshape() =
         NetFunctions.caffe_net_Reshape(netAnon)

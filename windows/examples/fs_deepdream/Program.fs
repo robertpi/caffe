@@ -17,10 +17,13 @@ let numberedFileName filepath (layer: string) extraPart i =
     Path.Combine(directory, sprintf "%s_%s_%s%i%s" filename layerSafe extraPart i ext)
 
 // iterates for over a given matrix, each pass highlights what is recongized
-let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) layerIndex layer mean =
+let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) layer mean =
 
     // first add the data to the blob
     inputBlob.SetData(data)
+
+    // get a reference to the bolb of the output layer
+    let outputBlob = net.BlobByName(layer)
 
     for i in 1 .. 10 do
         // first get the blobs data
@@ -33,10 +36,9 @@ let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) layerIn
 
         // forward to a given layer, set that layers target (the diff)
         // the propergate the data back the inputBlob
-        net.ForwardTo(layerIndex) |> ignore
-        let outputBlob = net.BlobByName(layer)
+        net.ForwardTo(layer) |> ignore
         outputBlob.SetDiff(outputBlob.GetData())
-        net.BackwardFrom(layerIndex)
+        net.BackwardFrom(layer)
 
         // the inputBlob's diff now contains what the net has reconized
         let inputData = inputBlob.GetData()
@@ -86,7 +88,6 @@ let main argv =
     // select the target layer, different layers produce different effects
     let layer = "inception_4c/output"
     //let layer = "inception_3b/5x5_reduce"
-    let layerIndex = net.LayerNames |> Seq.findIndex(fun x -> x = layer)
 
     // zoom over different levels of the image to help the net find different element
     for zoomFactor in 4 .. -1 .. 2  do
@@ -101,7 +102,7 @@ let main argv =
         // run the highlight over each zoomed image piece
         let treadedParts =
             Array.map (fun subMatrix -> 
-                makeStep  net inputBlob zoomWidth zoomHeight subMatrix layerIndex layer mean) subMatrices 
+                makeStep  net inputBlob zoomWidth zoomHeight subMatrix layer mean) subMatrices 
 
         // put the image back together and save
         PseudoMatrices.unzoom zoomFactor size.Width size.Height treadedParts allChannels
@@ -111,7 +112,7 @@ let main argv =
     // make a final pass over the unzoomed image
     inputBlob.Reshape([|1; numChannels; size.Width; size.Height |])
     net.Reshape()
-    let finalLayer = makeStep  net inputBlob size.Width size.Height allChannels layerIndex layer mean
+    let finalLayer = makeStep  net inputBlob size.Width size.Height allChannels layer mean
     let imageToSave = ArrayHelpers.arrayAdd mean finalLayer
     DotNetImaging.saveImageDotNet imageToSave (numberedFileName imgFile layer "" 0) size
 
