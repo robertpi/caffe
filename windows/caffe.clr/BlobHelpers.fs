@@ -1,6 +1,7 @@
 ﻿namespace Caffe.Clr
 
-module BlobHelpers = 
+module BlobHelpers =
+    /// loads a mean file, resizes it then caculates the mean value
     let loadMean meanFile numChannels width height =
         let meanBlob = Blob.FromProtoFile(meanFile)
 

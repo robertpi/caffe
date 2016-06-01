@@ -9,6 +9,7 @@ type internal Edge =
     | Height
 
 module DotNetImaging =
+    /// takes a bitmap and extracts the underlying byte array
     let private arrayOfImage (bitmap: Bitmap) =
         let bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat)
         try
@@ -22,6 +23,8 @@ module DotNetImaging =
         finally
             bitmap.UnlockBits(bmpdata)
 
+    /// takes a bitmap formats it as 3 channels of float32s,
+    /// this is similar to OpenCV's CV_32FC3 format
     let formatBitmapAsBgrChannels (bitmap: Bitmap) =
         let byteData = arrayOfImage bitmap
         let r =
@@ -40,6 +43,8 @@ module DotNetImaging =
 
 
 
+    /// resizes a bitmap using 'longEdgeMax' as the size for the
+    /// longest edge and preserving the aspect ratio
     let resizeBitmap (bitmap: Bitmap) longEdgeMax =
 
         let longEdge, edge = 
@@ -57,10 +62,11 @@ module DotNetImaging =
         let size = new Size(int width, int height)
         new Bitmap(bitmap, size)
 
+    /// saves an image formated as 3 channels of float32
     let saveImageDotNet (data: float32[]) file (size: Size) =
         let bitmap = new Bitmap(size.Width, size.Height)
 
-        let b, g, r = PseudoMatrices.splitChanels data
+        let b, g, r = PseudoMatrices.splitChannels data
 
         let rgb = Seq.zip3 r g b 
 
@@ -73,4 +79,3 @@ module DotNetImaging =
             bitmap.SetPixel(x, y, p))
 
         bitmap.Save(file)
-

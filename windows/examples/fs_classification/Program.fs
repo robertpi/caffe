@@ -7,48 +7,18 @@ module Classification =
     open System.Runtime.InteropServices
     open Caffe.Clr
 
-
-    let arrayOfImage (bitmap: Bitmap) =
-        let bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat)
-        try
-            let numbytes = bmpdata.Stride * bitmap.Height
-            let bytedata: byte[] = Array.zeroCreate numbytes
-            let ptr = bmpdata.Scan0;
-
-            Marshal.Copy(ptr, bytedata, 0, numbytes)
-
-            bytedata
-        finally
-            bitmap.UnlockBits(bmpdata)
-
     let loadImageDotNet file (size: Size) meanFile (inputBlob: Blob) numChannels =
         let bitmap = Image.FromFile(file) :?> Bitmap
 
         let bitmap = new Bitmap(bitmap, size)
 
-        let byteData = arrayOfImage bitmap
-        let r =
-            seq { for i in 0 .. 4 .. byteData.Length - 1 do
-                    yield float32 byteData.[i] }
-        let b =
-            seq { for i in 0 .. 4 .. byteData.Length - 1 do
-                    yield float32 byteData.[i + 1] }
-        let g =
-            seq { for i in 0 .. 4 .. byteData.Length - 1 do
-                    yield float32 byteData.[i + 2] }
-        let rbg =
-            seq { yield! r; yield! b; yield! g }
+        let allChannels = DotNetImaging.formatBitmapAsBgrChannels bitmap
 
-        let meanBlob = Blob.FromProtoFile(meanFile)
+        let mean = BlobHelpers.loadMean meanFile numChannels size.Width size.Height 
 
-        meanBlob.Reshape([|1; numChannels; size.Width; size.Height |])
-        let mean = meanBlob.GetData() |> Seq.average
+        ArrayHelpers.arrayAddInPlace mean allChannels
 
-        let allChanels =
-            rbg
-            |> Seq.map (fun x -> (x - mean))
-            |> Seq.toArray
-        inputBlob.SetData(allChanels)
+        inputBlob.SetData(allChannels)
 
     let loadModel modelFile trainedFile =
         // load the network and training data
