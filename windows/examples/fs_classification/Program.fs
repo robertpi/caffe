@@ -40,6 +40,7 @@ module Classification =
 
         // check the network has the same number of outputs as the labels file
         let resultChannels = output.Shape(Shape.Channels)
+        //printfn "labels.Length = %i resultChannels = %i" labels.Length resultChannels
         assert (labels.Length = resultChannels)
 
         // get the output data

@@ -1,5 +1,6 @@
 ﻿namespace Caffe.Clr
 open System
+open System.Collections.Generic
 open System.Runtime.InteropServices
 open Caffe.Clr.Interop
 
@@ -33,12 +34,19 @@ type Net(netFile: string, phase: Phase) =
     let getLayerName i = 
         let ptr = NetFunctions.caffe_net_layer_name(netAnon, i)
         Common.MarshalString (ptr)
-    let layerNames = new UnmanagedCollection<string>(getLayerName, getLayersSize)
-
+    let layerNames = 
+        Lazy.Create(fun () ->
+            new UnmanagedCollection<string>(getLayerName, getLayersSize)
+            |> Seq.toArray
+            |> fun x -> new ResizeArray<string>(x))
     let getBlobName i = 
         let ptr = NetFunctions.caffe_net_blob_name(netAnon, i)
         Common.MarshalString (ptr)
-    let blobNames = new UnmanagedCollection<string>(getBlobName, getBlobsSize)
+    let blobNames = 
+        Lazy.Create(fun () ->
+            new UnmanagedCollection<string>(getBlobName, getBlobsSize)
+            |> Seq.toArray
+            |> fun x -> new ResizeArray<string>(x))
 
     member x.LayerByName(layer_name: string) =
         let layerPtr = NetFunctions.caffe_net_layer_by_name(netAnon, layer_name)
@@ -59,22 +67,22 @@ type Net(netFile: string, phase: Phase) =
         NetFunctions.caffe_net_ForwardFromTo(netAnon, start, ``end``)
 
     member x.ForwardFromTo(start: string, ``end``: string) =
-        let startIndex = x.LayerNames |> Seq.find (fun x -> x = start)
-        let endIndex = x.LayerNames |> Seq.find (fun x -> x = ``end``)
+        let startIndex = x.LayerNames |> Seq.findIndex (fun x -> x = start)
+        let endIndex = x.LayerNames |> Seq.findIndex (fun x -> x = ``end``)
         x.ForwardFromTo(startIndex, endIndex)
 
     member x.ForwardFrom(start: int) =
         NetFunctions.caffe_net_ForwardFrom(netAnon, start)
 
     member x.ForwardFrom(start: string) =
-        let startIndex = x.LayerNames |> Seq.find (fun x -> x = start)
+        let startIndex = x.LayerNames |> Seq.findIndex (fun x -> x = start)
         x.ForwardFrom(startIndex)
 
     member x.ForwardTo(``end``: int) =
         NetFunctions.caffe_net_ForwardTo(netAnon, ``end``)
 
     member x.ForwardTo(``end``: string) =
-        let endIndex = x.LayerNames |> Seq.find (fun x -> x = ``end``)
+        let endIndex = x.LayerNames |> Seq.findIndex (fun x -> x = ``end``)
         x.ForwardTo(endIndex)
 
     member x.ClearParamDiffs() =
@@ -87,22 +95,22 @@ type Net(netFile: string, phase: Phase) =
         NetFunctions.caffe_net_BackwardFromTo(netAnon, start, ``end``)
 
     member x.BackwardFromTo(start: string, ``end``: string) =
-        let startIndex = x.LayerNames |> Seq.find (fun x -> x = start)
-        let endIndex = x.LayerNames |> Seq.find (fun x -> x = ``end``)
+        let startIndex = x.LayerNames |> Seq.findIndex (fun x -> x = start)
+        let endIndex = x.LayerNames |> Seq.findIndex (fun x -> x = ``end``)
         x.BackwardFromTo(startIndex, endIndex)
 
     member x.BackwardFrom(start: int) =
         NetFunctions.caffe_net_BackwardFrom(netAnon, start)
 
     member x.BackwardFrom(start: string) =
-        let startIndex = x.LayerNames |> Seq.find (fun x -> x = start)
+        let startIndex = x.LayerNames |> Seq.findIndex (fun x -> x = start)
         x.BackwardFrom(startIndex)
 
     member x.BackwardTo(``end``: int) =
         NetFunctions.caffe_net_BackwardTo(netAnon, ``end``)
 
     member x.BackwardTo(``end``: string) =
-        let endIndex = x.LayerNames |> Seq.find (fun x -> x = ``end``)
+        let endIndex = x.LayerNames |> Seq.findIndex (fun x -> x = ``end``)
         x.BackwardTo(endIndex)
 
     member x.Reshape() =
@@ -134,9 +142,9 @@ type Net(netFile: string, phase: Phase) =
             let ptr = NetFunctions.caffe_net_name(netAnon)
             Common.MarshalString (ptr)
 
-    member x.LayerNames = layerNames
+    member x.LayerNames = layerNames.Force()
 
-    member x.BlobNames = blobNames
+    member x.BlobNames = blobNames.Force()
 
     member x.Blobs = blobs
 
