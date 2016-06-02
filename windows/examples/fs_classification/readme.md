@@ -13,17 +13,13 @@ image classifer. It is a port of the C++ example.
 
 ## Presentation
 
-A simple F# code is proposed in
-`windows/examples/fs_classification/classification.cpp`. For the sake of
-simplicity, this example does not support oversampling of a single
-sample nor batching of multiple independant samples. This example is
-not trying to reach the maximum possible classification throughput on
-a system, but special care was given to avoid unnecessary
-pessimization while keeping the code readable.
+The code for a simple classifer written in F# code is shown in
+`windows/examples/fs_classification/classification.fs`. The aim is
+to produce the simplest classifer possible.
 
 ## Compiling
 
-The example should be build as part of the windows build [described here](../../../blob/master/README.md).
+The example should be build as part of the windows build [described here](../../../README.md).
 
 ## Usage
 
