@@ -32,7 +32,7 @@ script:
 
 Alteratively, the model can be downloaded here: http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel
 
-(Models are < 100MB, so too large to be versioned by git)
+(Models are > 100MB, so too large to be versioned by git)
 
 The ImageNet labels file (also called the *synset file*) is also
 required in order to map a prediction to the name of the class:
