@@ -9,13 +9,13 @@ priority: 10
 # Classifying ImageNet: using the F# API
 
 This example demonstrates using the F# API to implement a simple
-image classifer. It is a port of the C++ example.
+image classifier. It is a port of the C++ example.
 
 ## Presentation
 
-The code for a simple classifer written in F# code is shown in
+The code for a simple classifier written in F# code is shown in
 `windows/examples/fs_classification/classification.fs`. The aim is
-to produce the simplest classifer possible.
+to produce the simplest classifier possible.
 
 ## Compiling
 
