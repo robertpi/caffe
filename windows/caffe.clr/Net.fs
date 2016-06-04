@@ -1,11 +1,21 @@
 ﻿namespace Caffe.Clr
 open System
-open System.Collections.Generic
+open System.Collections.ObjectModel
 open System.Runtime.InteropServices
 open Caffe.Clr.Interop
 
 type Net(netFile: string, phase: Phase) = 
     let netAnon = NetFunctions.caffe_net_new(netFile, phase)
+
+    // why? I had the impression we lots a lot time marshalling string each time
+    // we searched an unmanaged collection, but now I'm not convience this true
+    let lazyReadOnlyCollection (c: UnmanagedCollection<'t>) =
+        Lazy.Create(fun () ->
+            c
+            |> Seq.toArray
+            |> fun x -> new ResizeArray<'t>(x)
+            |> fun x -> new ReadOnlyCollection<'t>(x) )
+
 
     let getBlob i = 
         let blobPtr = NetFunctions.caffe_net_blob(netAnon, i)
@@ -35,18 +45,12 @@ type Net(netFile: string, phase: Phase) =
         let ptr = NetFunctions.caffe_net_layer_name(netAnon, i)
         Common.MarshalString (ptr)
     let layerNames = 
-        Lazy.Create(fun () ->
-            new UnmanagedCollection<string>(getLayerName, getLayersSize)
-            |> Seq.toArray
-            |> fun x -> new ResizeArray<string>(x))
+        lazyReadOnlyCollection (new UnmanagedCollection<string>(getLayerName, getLayersSize))
     let getBlobName i = 
         let ptr = NetFunctions.caffe_net_blob_name(netAnon, i)
         Common.MarshalString (ptr)
     let blobNames = 
-        Lazy.Create(fun () ->
-            new UnmanagedCollection<string>(getBlobName, getBlobsSize)
-            |> Seq.toArray
-            |> fun x -> new ResizeArray<string>(x))
+        lazyReadOnlyCollection (new UnmanagedCollection<string>(getLayerName, getLayersSize))
 
     member x.LayerByName(layer_name: string) =
         let layerPtr = NetFunctions.caffe_net_layer_by_name(netAnon, layer_name)

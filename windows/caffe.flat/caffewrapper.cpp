@@ -15,18 +15,20 @@
 using namespace boost;
 using namespace caffe;
 
+EXPORT void caffe_set_mode(Caffe::Brew mode)
+{
+	Caffe::set_mode(mode);
+}
+
+
 EXPORT void caffe_SetDevice(int deviceId)
 {
-	// Set GPU
-	if (deviceId >= 0)
-	{
-		Caffe::set_mode(Caffe::GPU);
-		Caffe::SetDevice(deviceId);
-	}
-	else
-	{
-		Caffe::set_mode(Caffe::CPU);
-	}
+	Caffe::SetDevice(deviceId);
+}
+
+EXPORT void caffe_FindDevice()
+{
+	Caffe::FindDevice();
 }
 
 EXPORT void *caffe_ReadProtoFromBinaryFileOrDie(const char* filename)
