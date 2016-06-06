@@ -54,11 +54,14 @@ type Net(netFile: string, phase: Phase) =
 
     member x.LayerByName(layer_name: string) =
         let layerPtr = NetFunctions.caffe_net_layer_by_name(netAnon, layer_name)
-        new Layer(layerPtr)
+        if layerPtr <> IntPtr.Zero then Some (new Layer(layerPtr))
+        else None
+        
 
     member x.BlobByName(blob_name: string) =
         let blobPtr = NetFunctions.caffe_net_blob_by_name(netAnon, blob_name)
-        new Blob(blobPtr)
+        if blobPtr <> IntPtr.Zero then Some (new Blob(blobPtr))
+        else None
 
     member x.InputBlobs = inputBlobs
 
