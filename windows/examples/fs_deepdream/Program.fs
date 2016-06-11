@@ -66,6 +66,53 @@ let makeStep (net: Net) (inputBlob: Blob) width height (data: float32[]) (layer:
         inputBlob.GetData())
 
 
+let makeDreamForLayer layer  imgFile meanFile (net: Net) (inputBlob: Blob) =
+    // get a reference to the bolb of the output layer
+    let outputBlobOpt = net.BlobByName(layer)
+
+    match outputBlobOpt with
+    | Some outputBlob ->
+        // load the image bitmap and format it correctly for the net
+        let bitmap = Image.FromFile(imgFile) :?> Bitmap
+        let bitmapResized = DotNetImaging.resizeBitmap bitmap 1000.
+        let allChannels = DotNetImaging.formatBitmapAsBgrChannels bitmapResized
+        let size = bitmapResized.Size
+        let mean = BlobHelpers.loadMean meanFile numChannels size.Width size.Height
+        ArrayHelpers.arraySubInPlace mean allChannels
+
+        // zoom over different levels of the image to help the net find different element
+        for zoomFactor in 4 .. -1 .. 2  do
+
+            time (sprintf "zoom %i" zoomFactor) (fun () ->
+
+                // perform the actual zooming
+                let zoomWidth, zoomHeight, subMatrices = PseudoMatrices.splitZoomCombine zoomFactor size.Width size.Height allChannels
+
+                // reshape the net to the target image size
+                inputBlob.Reshape([|1; numChannels; zoomWidth; zoomHeight |])
+                net.Reshape()
+
+                // run the highlight over each zoomed image piece
+                let treadedParts =
+                    Array.map (fun subMatrix -> 
+                        makeStep  net inputBlob zoomWidth zoomHeight subMatrix layer outputBlob mean) subMatrices 
+
+                // put the image back together and save
+                PseudoMatrices.unzoom zoomFactor size.Width size.Height treadedParts allChannels
+                let imageToSave = ArrayHelpers.arrayAdd mean allChannels
+                DotNetImaging.saveImageDotNet imageToSave (numberedFileName imgFile layer "" zoomFactor) size)
+
+        time "final pass" (fun () ->
+            // make a final pass over the unzoomed image
+            inputBlob.Reshape([|1; numChannels; size.Width; size.Height |])
+            net.Reshape()
+            let finalLayer = makeStep  net inputBlob size.Width size.Height allChannels layer outputBlob mean
+            let imageToSave = ArrayHelpers.arrayAdd mean finalLayer
+            DotNetImaging.saveImageDotNet imageToSave (numberedFileName imgFile layer "" 1) size)
+
+    | None -> printfn "Layer %s has no blob" layer
+
+
 [<EntryPoint>]
 let main argv = 
     let modelFile   = argv.[0]
@@ -74,6 +121,9 @@ let main argv =
 
     // unpack the argument for the files to be tested
     let imgFile = argv.[3]
+    let layer = 
+        if argv.Length > 3 then argv.[4]
+        else "inception_4c/output"
 
 // uncomment to run on the GPU, can make quite a difference!
 //    Caffe.SetMode Brew.GPU
@@ -89,52 +139,11 @@ let main argv =
         // get the input blob where we'll put the image data
         let inputBlob = net.InputBlobs |> Seq.head
 
-        for layer in net.LayerNames |> Seq.filter(fun layer -> layer <> "data")  do
-
-            // get a reference to the bolb of the output layer
-            let outputBlobOpt = net.BlobByName(layer)
-
-            match outputBlobOpt with
-            | Some outputBlob ->
-                // load the image bitmap and format it correctly for the net
-                let bitmap = Image.FromFile(imgFile) :?> Bitmap
-                let bitmapResized = DotNetImaging.resizeBitmap bitmap 1000.
-                let allChannels = DotNetImaging.formatBitmapAsBgrChannels bitmapResized
-                let size = bitmapResized.Size
-                let mean = BlobHelpers.loadMean meanFile numChannels size.Width size.Height
-                ArrayHelpers.arraySubInPlace mean allChannels
-
-                // zoom over different levels of the image to help the net find different element
-                for zoomFactor in 4 .. -1 .. 2  do
-
-                    time (sprintf "zoom %i" zoomFactor) (fun () ->
-
-                        // perform the actual zooming
-                        let zoomWidth, zoomHeight, subMatrices = PseudoMatrices.splitZoomCombine zoomFactor size.Width size.Height allChannels
-
-                        // reshape the net to the target image size
-                        inputBlob.Reshape([|1; numChannels; zoomWidth; zoomHeight |])
-                        net.Reshape()
-
-                        // run the highlight over each zoomed image piece
-                        let treadedParts =
-                            Array.map (fun subMatrix -> 
-                                makeStep  net inputBlob zoomWidth zoomHeight subMatrix layer outputBlob mean) subMatrices 
-
-                        // put the image back together and save
-                        PseudoMatrices.unzoom zoomFactor size.Width size.Height treadedParts allChannels
-                        let imageToSave = ArrayHelpers.arrayAdd mean allChannels
-                        DotNetImaging.saveImageDotNet imageToSave (numberedFileName imgFile layer "" zoomFactor) size)
-
-                time "final pass" (fun () ->
-                    // make a final pass over the unzoomed image
-                    inputBlob.Reshape([|1; numChannels; size.Width; size.Height |])
-                    net.Reshape()
-                    let finalLayer = makeStep  net inputBlob size.Width size.Height allChannels layer outputBlob mean
-                    let imageToSave = ArrayHelpers.arrayAdd mean finalLayer
-                    DotNetImaging.saveImageDotNet imageToSave (numberedFileName imgFile layer "" 0) size)
-
-            | None -> printfn "Layer %s has no blob" layer)
+        if layer = "*" then
+            for layer in net.LayerNames |> Seq.filter(fun layer -> layer <> "data")  do
+                makeDreamForLayer layer imgFile meanFile net inputBlob 
+        else
+                makeDreamForLayer layer imgFile meanFile net inputBlob)
 
 
     0 // return an integer exit code
